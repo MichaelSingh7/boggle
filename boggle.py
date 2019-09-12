@@ -61,17 +61,20 @@ def path_to_word(grid, path):
     
     
 def search(grid, dictionary):
-    """
+    """ m
     Search Through The Paths To Locate Words By Matching
     Strings To Words In A Dictionary
     """
     neighbours = all_grid_neighbours(grid)
     paths = []
+    full_words, stems = dictionary
     
     def do_search(path):
         word = path_to_word(grid, path)
-        if word in dictionary:
+        if word in full_words:
             paths.append(path)
+        if word not in stems:
+            return 
         for next_pos in neighbours[path[-1]]:
             if next_pos not in path: 
              do_search(path + [next_pos])
@@ -89,15 +92,23 @@ def get_dictionary(dictionary_file):
     """
     Load Dictionary File
     """
+    full_words, stems = set(), set()
+    
     with open(dictionary_file) as f:
-        return [w.strip().upper() for w in f]
-        
+        for word in f:
+            word = word.strip().upper()
+            full_words.add(word)
+            
+            for i in range(1, len(word)):
+                stems.add(word[:i])
+                
+    return full_words, stems            
         
 def main():
     """
     This Is The Function That Will Run The Whole Project
     """
-    grid = make_grid(3, 3)
+    grid = make_grid(4, 4)
     dictionary = get_dictionary('words.txt')
     words = search(grid, dictionary)
     for word in words:
